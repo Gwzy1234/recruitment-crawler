@@ -1,8 +1,6 @@
-# 原始 team-task.py 驱动的招聘存档爬虫后端
+# 固定招聘存档爬虫后端
 
-> 2026-11-06 更新：原 `collector.py` 保留以便参考和回归测试，但正式 Web 端的 `Crawler` 工厂已切换为 `LegacyCrawler`；任务真实执行的是 `team-task.py` 三个原始爬取/解析函数。原文件的最初版本备份见 `team-task-original.py`。
-
-FastAPI 同时提供页面与 REST API，requests / BeautifulSoup 在独立工作线程中采集。默认监听 `127.0.0.1:8767`。现在通过 `legacy_adapter.py` 实际 import 并调用项目根目录 `team-task.py` 的 `get_page`、`parse_job_list`、`parse_job_detail`；不接受用户提供的爬取 URL。
+FastAPI 同时提供页面与 REST API，requests / BeautifulSoup 在独立工作线程中采集。默认监听 `127.0.0.1:8767`。不 import 或执行原脚本，不接受用户提供的爬取 URL。
 
 项目根目录运行 `./web_backend/start.command`，打开 <http://127.0.0.1:8767/>。安装说明见 [前端 README](../frontend/README.md)。只启动一个服务，不需要静态服务器。
 
@@ -40,7 +38,7 @@ curl -H 'Content-Type: application/json' -d '{}' http://127.0.0.1:8767/api/tasks
 
 进程内锁与 `fcntl.flock` 限制一个采集器。服务仍用 `--workers 1`，不要同时启动多个实例共用数据目录；文件锁不是多进程共享状态总线。历史元信息由 JSON 恢复，不需要数据库。
 
-正式 Web 端使用 `team-task.py` 原始 `get_page`：`requests.get(url, timeout=10)`，原函数保留 `raise_for_status()` 和自动识别编码；调用时不会主动关闭 TLS 校验。详情请求间隔 1 秒。**旧 `collector.py` 的有界重试和重定向限制仅适用于原适配器及其回归测试，不能作为当前正式爬虫的安全特性。** 如需要对外开放，应在入口配置访问控制和限流。
+连接/读取超时为 5/15 秒；超时、连接错误、429、部分 5xx 最多重试一次，SSL 与 404 不重试；最多跟随 5 次重定向，且目标仅限固定医院路径的 HTTPS Wayback 地址。详情请求间隔 1 秒。未关闭 TLS 校验。
 
 ## 测试
 
@@ -72,8 +70,3 @@ BASE_URL=http://127.0.0.1:8766/ node --test frontend/tests/browser.test.cjs
 ## 真实访问情况
 
 2026-11-03 正式任务访问固定网址失败于 TLS 连接，未得到列表，未生成 CSV。进一步 requests 诊断为 TLS EOF，系统 curl 也超时。已验证外网错误处理与本地 HTML 全流程，没有宣称真实招聘采集成功。网络恢复后可直接从正式页面重试，无需更换来源或关闭证书验证。
-
-
-## 2026-11-06 原脚本接入验证
-
-当前默认任务的 `source_kind` 为 `wayback_team_task`；原三个函数经 AST 对比与用户上传版本一致。采用本地 HTML 夹具验证实际调用、FastAPI 任务轮询、CSV 生成及失败记录；共 27 项 Python 回归和集成测试通过、8 项前端数据测试通过。此次未从真实 Wayback 网站重新发起采集。详见项目根目录 `原始爬虫接入说明.md`。

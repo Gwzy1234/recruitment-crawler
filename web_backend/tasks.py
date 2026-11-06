@@ -13,8 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .collector import CollectionStopped, describe_error
-from .legacy_adapter import LegacyCrawler as Crawler, LIST_URL
+from .collector import Crawler, CollectionStopped, LIST_URL, describe_error
 
 ACTIVE_STATES = {"queued", "fetching_list", "fetching_details", "saving"}
 FINAL_STATES = {"completed", "partial", "failed", "interrupted"}

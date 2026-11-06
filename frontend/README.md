@@ -1,5 +1,3 @@
-# 2026-11-06 更新：正式 Web 后端现调用根目录 team-task.py 原始函数，见 `../原始爬虫接入说明.md`。以下部分保留早期开发记录，不代表最新调用关系。
-
 # 医院招聘信息检索与可视化平台 · 第二阶段
 
 保留第一阶段的界面、浅深主题、响应式布局、统计、搜索筛选、排序、分页和详情弹窗，改为 **FastAPI + 独立 Python 爬虫 + 原生 JavaScript**。不再上传或导入 CSV，不提供网址输入框或演示按钮。
@@ -81,8 +79,7 @@ frontend/
     └── artifacts/             # 明确标识来源的测试截图
 web_backend/
 ├── app.py                     # FastAPI、同源接口与静态白名单
-├── collector.py               # 早期重写的采集器，当前不作为默认运行后端
-├── legacy_adapter.py          # 调用原版 team-task.py 三个函数的正式适配层
+├── collector.py               # 固定源 requests / BeautifulSoup 适配
 ├── tasks.py                   # 单任务锁、事件计数、保存与恢复
 ├── start.command              # Mac 启动脚本，可设置 PORT
 ├── requirements.txt           # 四个已验证运行依赖
@@ -101,7 +98,7 @@ web_backend/
 
 ## 原文件保护
 
-历史情况：最初版本只读参考 `team-task.py`，没有 import。**现状（2026-11-06）**：已修改 `team-task.py` 的运行保护及 CSV 输出路径，在 Web 任务中直接调用其原始三函数，原版逐字节备份为 `team-task-original.py`；原始 `招聘数据.csv` 不覆盖。
+实际目录没有 `team-task(3).py`；只读参考现有 `team-task.py`、`team_task_fixed.py`，没有运行或 import 旧脚本。所有原 Python 文件、原始 `招聘数据.csv` 及原有 `.venv/` 保持不变，不使用旧脚本的绝对输出路径。改动仅限允许调整的 `frontend/` 与新建的 `web_backend/`。
 
 结果使用独立 UUID 目录、排他创建和写完后改名，完成前不开放下载。原文件校验见 [测试报告](TEST_REPORT.md)。
 
