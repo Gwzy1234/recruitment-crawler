@@ -1,0 +1,15 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+*.py[cod]
+__pycache__/
+.pytest_cache/
+.venv/
+.runtime/
+.DS_Store
+web_backend/data/
+web_backend/tests/
+frontend/tests/
+*.log

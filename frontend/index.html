@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="一键采集固定医院招聘历史存档，查看真实任务进度、检索岗位并下载 CSV。">
+  <title>医职档案 · 医院招聘信息检索与可视化平台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%230c766b'/%3E%3Cpath d='M20 10v20M10 20h20' stroke='white' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳至主要内容</a>
+  <aside class="sidebar" aria-label="平台导航">
+    <a class="brand" href="#overview"><span class="brand-mark" aria-hidden="true">+</span><span>医职档案<small>MEDICAL CAREER ARCHIVE</small></span></a>
+    <div class="workspace-label">招聘数据工作台</div>
+    <nav>
+      <a class="nav-link active" href="#overview"><span aria-hidden="true">◫</span> 数据总览</a>
+      <a class="nav-link" href="#jobs"><span aria-hidden="true">⌕</span> 岗位检索 <span id="nav-count" class="nav-count">0</span></a>
+      <a class="nav-link" href="#collection"><span aria-hidden="true">▤</span> 采集任务</a>
+    </nav>
+    <div class="sidebar-note"><span class="little-label">LOCAL WORKSPACE</span><strong>固定来源，一键采集。</strong><p>由本机 Python 访问历史存档，采集记录与 CSV 独立保存在本地。</p><span class="local-dot">FastAPI · 本机服务</span></div>
+    <button class="theme-button" id="theme-toggle" type="button" aria-label="切换到深色主题"><span aria-hidden="true" id="theme-icon">◐</span><span id="theme-label">深色模式</span><kbd>☼</kbd></button>
+  </aside>
+
+  <div class="main-shell">
+    <header class="topbar"><span><span class="topbar-root">工作空间</span><span class="separator">/</span>招聘数据总览</span><span class="privacy-indicator" id="connection-indicator"><span></span> 正在连接本机服务</span></header>
+    <main id="main">
+      <section id="overview" aria-labelledby="page-title">
+        <div class="page-heading"><div><div class="eyebrow">HOSPITAL RECRUITMENT / ARCHIVE</div><h1 id="page-title">让招聘信息，清晰可见<span class="title-dot">。</span></h1><p class="subtitle">医院招聘信息检索与可视化平台</p></div><div class="heading-actions"><button class="button secondary" id="download-button" type="button" disabled>↓ 下载 CSV</button><button class="button primary" id="start-button" type="button" disabled>开始爬取 <span aria-hidden="true">→</span></button></div></div>
+        <div class="archive-notice"><span class="notice-icon" aria-hidden="true">◷</span><p><strong>历史存档数据，不代表当前在招。</strong><span>原爬虫读取 Wayback Machine 网页存档；招聘状态与要求请以医院官方最新公告为准。</span></p><span class="archive-tag">历史数据</span></div>
+        <p id="overview-context" class="stats-caption">统计范围：尚无采集结果</p>
+        <div class="stats-grid" aria-label="整份数据统计">
+          <article class="stat-card"><div class="stat-top"><h2>岗位总数</h2><span class="stat-symbol" aria-hidden="true">▤</span></div><div class="stat-value"><span id="stat-total">0</span><small>个</small></div><p>当前数据集中的全部岗位</p></article>
+          <article class="stat-card"><div class="stat-top"><h2>已获取学历</h2><span class="stat-symbol" aria-hidden="true">◇</span></div><div class="stat-value"><span id="stat-education">0</span><small>个</small></div><p id="stat-education-note">采集完成后计算覆盖率</p></article>
+          <article class="stat-card"><div class="stat-top"><h2>已获取专业</h2><span class="stat-symbol" aria-hidden="true">⌘</span></div><div class="stat-value"><span id="stat-major">0</span><small>个</small></div><p id="stat-major-note">采集完成后计算覆盖率</p></article>
+          <article class="stat-card accent-card"><div class="stat-top"><h2>信息完整</h2><span class="stat-symbol" aria-hidden="true">✓</span></div><div class="stat-value"><span id="stat-complete">0</span><small>个</small></div><p>名称、学历、专业与有效链接齐全</p></article>
+        </div>
+      </section>
+
+      <div id="feedback" class="feedback" role="status" aria-live="polite" hidden></div>
+      <section id="collection" class="panel task-panel" aria-labelledby="task-heading">
+        <div class="task-top"><div><div class="section-eyebrow">COLLECTION WORKFLOW</div><h2 id="task-heading">采集任务 <span id="task-status" class="source-badge">尚未开始</span></h2></div><span class="task-id" id="task-id">固定来源 · Wayback Machine</span></div>
+        <p id="task-message" class="task-message" role="status" aria-live="polite">连接服务后，点击“开始爬取”读取固定招聘网站。</p>
+        <div class="task-progress-row"><progress id="task-progress" max="100" value="0" aria-label="实际岗位处理进度"></progress><span id="progress-label">尚未开始</span></div>
+        <div class="task-metrics"><div><span>已发现岗位</span><strong id="task-discovered">—</strong></div><div><span>已处理岗位</span><strong id="task-processed">0</strong></div><div><span>成功解析</span><strong id="task-parsed">0</strong></div><div><span>失败岗位</span><strong id="task-failed">0</strong></div></div>
+        <div class="task-bottom"><p id="task-detail">成功解析包含字段不完整的岗位；失败岗位保留原始列表信息。</p><button id="reconnect-button" class="text-link" type="button" hidden>重新连接服务 ↻</button></div>
+        <p id="task-error" class="task-error" role="status" hidden></p>
+        <details class="task-events" id="task-events" hidden><summary>查看真实任务事件</summary><ol id="event-list"></ol></details>
+      </section>
+      <div class="content-grid">
+        <section id="jobs" class="panel jobs-panel" aria-labelledby="jobs-title" aria-busy="false">
+          <div class="panel-heading"><div><div class="section-eyebrow">EXPLORE THE ARCHIVE</div><h2 id="jobs-title">岗位检索 <span class="count-pill" id="result-count">0</span></h2></div><span id="result-context" class="source-badge">尚无采集结果</span></div>
+          <form id="filter-form" class="filter-form" role="search" aria-label="组合筛选岗位">
+            <div class="search-grid"><label class="search-field"><span class="sr-only">岗位名称</span><span aria-hidden="true">⌕</span><input id="title-search" name="title" type="search" placeholder="搜索岗位名称…" autocomplete="off"><kbd>/</kbd></label><label class="search-field"><span class="sr-only">专业关键词</span><span aria-hidden="true">⌕</span><input id="major-search" name="major" type="search" placeholder="搜索专业关键词…" autocomplete="off"></label></div>
+            <div class="filter-row"><label><span>学历要求</span><select id="education-filter" name="education"><option value="">全部学历</option></select></label><label><span>信息状态</span><select id="missing-filter" name="missing"><option value="">全部状态</option><option value="complete">信息完整</option><option value="incomplete">信息不完整</option><option value="education">缺少学历</option><option value="major">缺少专业</option><option value="both">学历与专业均缺失</option><option value="link">缺少有效链接</option></select></label><button class="reset-button" id="reset-button" type="reset">重置筛选 <span aria-hidden="true">↺</span></button></div>
+          </form>
+          <div class="results-toolbar"><span id="result-summary" role="status" aria-live="polite">等待采集结果</span><label class="sort-label">排序<select id="sort-select" aria-label="岗位排序"><option value="original">原始顺序</option><option value="title-asc">名称 A → Z</option><option value="title-desc">名称 Z → A</option><option value="complete">完整信息优先</option><option value="education">学历文本顺序</option></select></label></div>
+          <div id="empty-state" class="empty-state"><div class="empty-icon" aria-hidden="true">▤<span>＋</span></div><h3 id="empty-title">从一次采集开始</h3><p id="empty-description">点击页面上方“开始爬取”，自动读取固定医院招聘存档。</p><button class="button secondary" type="button" id="empty-action" hidden>重置筛选条件 ↺</button><span class="file-hint">无需上传文件 · 无需输入网址</span></div>
+          <div class="table-wrap" id="table-wrap" hidden><table><caption class="sr-only">筛选后的医院招聘历史存档岗位；点击岗位名称查看完整字段</caption><thead><tr><th scope="col">岗位名称</th><th scope="col">学历要求</th><th scope="col">专业要求</th><th scope="col">信息状态</th><th scope="col"><span class="sr-only">详情链接</span></th></tr></thead><tbody id="jobs-body"></tbody></table></div>
+          <div class="pagination" id="pagination" hidden><span id="page-summary"></span><div><label class="page-size-label">每页<select id="page-size" aria-label="每页条数"><option value="10">10 条</option><option value="20">20 条</option><option value="50">50 条</option></select></label><button id="previous-page" class="icon-button" aria-label="上一页" type="button">‹</button><span id="page-indicator"></span><button id="next-page" class="icon-button" aria-label="下一页" type="button">›</button></div></div>
+        </section>
+
+        <aside class="insights" aria-label="数据洞察与来源">
+          <section class="panel insight-panel"><div class="insight-heading"><h2>学历分布</h2><span class="muted small-text">整份结果</span></div><p class="panel-description">保留原始要求，不合并学历层级</p><div id="education-chart" class="education-chart"><p class="chart-empty">采集完成后查看学历分布</p></div></section>
+          <section class="panel insight-panel"><div class="insight-heading"><h2>数据完整度</h2><span class="teal-text" aria-hidden="true">◉</span></div><div class="quality-value"><strong id="quality-percent">—</strong><span>完整岗位占比</span></div><div class="quality-track"><span id="quality-bar"></span></div><p class="panel-description" id="quality-description">缺失信息会如实标记，不自动补全。</p></section>
+          <section class="source-card"><div class="section-eyebrow">DATA SOURCE</div><div class="source-heading"><h2>当前展示结果</h2><span class="source-badge" id="source-badge">待采集</span></div><strong class="source-file" id="source-file">尚无已保存结果</strong><p id="source-description">固定访问原程序中的 Wayback Machine 招聘存档，每次任务独立保存。</p><a class="text-link source-url" href="https://web.archive.org/web/20260515165600/https://zp.z2hospital.com/department/detailInfomore.action" target="_blank" rel="noopener noreferrer">查看固定列表存档 ↗</a><div class="source-divider"></div><span class="local-dot">本机保存 · 不覆盖原始 CSV</span></section>
+        </aside>
+      </div>
+
+      <section id="guide" class="guide-panel" aria-labelledby="guide-title"><div><div class="section-eyebrow">A SIMPLE WORKFLOW</div><h2 id="guide-title">从采集到检索，三步即可</h2><p>固定招聘存档，真实任务进度，本地保存。</p></div><ol><li><span>01</span><div><strong>一键开始爬取</strong><p>由 Python 读取固定列表与岗位详情</p></div></li><li><span>02</span><div><strong>查看进度与结果</strong><p>实时显示已发现、已解析与失败数量</p></div></li><li><span>03</span><div><strong>下载本次 CSV</strong><p>后端生成 UTF-8-SIG 文件，Excel 可读</p></div></li></ol></section>
+      <footer><span><strong>医职档案</strong> · 医院招聘信息检索与可视化平台</span><span>历史有据，检索有序。</span></footer>
+    </main>
+  </div>
+
+  <dialog id="job-dialog" aria-labelledby="detail-title"><div class="dialog-top"><span class="section-eyebrow">ARCHIVE RECORD</span><button class="icon-button" id="close-dialog" type="button" aria-label="关闭岗位详情">×</button></div><span id="detail-status" class="status-badge"></span><h2 id="detail-title"></h2><p class="detail-notice" id="detail-notice">此记录来自历史网页存档，不代表当前招聘状态。</p><dl id="detail-fields"></dl><div class="dialog-footer"><span class="muted small-text">仅展示实际采集到的信息</span><a id="detail-link" class="button primary" target="_blank" rel="noopener noreferrer">打开原始链接 ↗</a></div></dialog>
+  <noscript><p class="noscript">请启用 JavaScript 后使用任务采集和岗位检索。</p></noscript>
+</body>
+</html>

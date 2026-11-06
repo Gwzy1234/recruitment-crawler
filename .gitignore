@@ -1,0 +1,17 @@
+# Local runtime, secrets, and collected recruitment records
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.runtime/
+.venv*/
+*.log
+.DS_Store
+.web_backend/
+web_backend/data/*
+!web_backend/data/.gitkeep
+web_backend/tests/.artifacts/
+frontend/tests/.artifacts/
