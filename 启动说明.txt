@@ -1,4 +1,4 @@
-﻿医院招聘历史存档爬虫——简短启动说明
+医院招聘历史存档爬虫——简短启动说明
 
 1. 将整个 ZIP 解压到本机可读写的文件夹，不要直接在压缩包里运行。
 2. 需先安装 Python 3.11 或更高版本：https://www.python.org/downloads/
@@ -11,13 +11,11 @@
 4. 启动器自动创建本机 .runtime 环境并打开 http://127.0.0.1:8767/
    若浏览器未弹出，可手动访问该地址。无需安装 Node.js。
 5. 在网页点击“开始爬取”才发起采集，可查看进度、筛选结果和下载 CSV。
-   数据保存在 web_backend/data/，原有历史任务和结果已包含在压缩包内。
+   数据保存在 web_backend/data/，原数据在首次启动或执行采集任务时保存至 web_backend/data/。GitHub 源码压缩	       包默认不包含历史采集结果。
    关闭页面不会自动停止服务；请保留终端窗口，按 Ctrl+C 停止服务。
 6. 若 8767 端口被占用，请先关闭旧启动窗口。网络/存档站不可达会如实报错，
    启动成功不代表外部网站一定可以采集，程序不会伪造数据。
-7. 原代码 team-task.py、修正版 team_task_fixed.py 和招聘数据.csv 一并保留。
-   一键入口启动网页版本，但采集任务实际调用原代码 team-task.py 的三个核心函数。
-   原脚本完整备份为 team-task-original.py；详情见 原始爬虫接入说明.md。
+7. 原项目保留 team-task.py、team-task-original.py 和 team_task_fixed.py，供原始程序对照或独立运行。网页端的采集功能实际使用 web_backend/collector.py，由 web_backend/tasks.py 负责任务管理和 CSV/JSON 保存，不直接执行原始脚本。
 
 换电脑时重新解压原 ZIP，不要复制 .runtime 虚拟环境。
 这是源码启动包，需要 Python；不是免安装的 EXE/APP。本次已做本地离线集成测试；未访问真实招聘存档网站。

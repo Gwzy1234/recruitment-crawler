@@ -6,10 +6,35 @@
 
 需要 Python 3.10 或更新版本；本机已用 Python 3.14.7 验证：
 
-```sh
-cd "/Users/gyz/Documents/Python编程/python小组作业"
-./web_backend/start.command
+
+## 本地启动
+
+需要 Python 3.11 或更高版本。
+
+请先将项目完整解压，然后进入项目根目录。
+
+- Windows：双击 `start.bat`
+- macOS：双击 `start.command`，或执行 `bash start.sh`
+- Linux：执行 `bash start.sh`
+
+启动器会自动创建根目录下的 `.runtime` 虚拟环境，并根据 `web_backend/requirements.txt` 安装依赖。
+
+首次安装依赖需要网络连接，无需安装 Node.js。
+
+启动成功后访问：
+
+http://127.0.0.1:8767/
+
+页面和 API 均由 FastAPI 提供，不需要额外启动静态服务器。
+
+若端口被占用，可执行：
+
+```bash
+PORT=8768 bash start.sh
 ```
+
+在终端按 `Ctrl+C` 停止服务。
+
 
 也可以在 Finder 双击 `web_backend/start.command`。首次缺少依赖时，脚本仅在新建的 `web_backend/.venv/` 安装 `web_backend/requirements.txt`，不修改项目原有 `.venv/`。
 
